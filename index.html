@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IF Meal Plan</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.5;
+            color: #2d3748;
+            background: #f7fafc;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        header {
+            background: #1a202c;
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .timer-display {
+            font-size: 0.875rem;
+            background: rgba(255,255,255,0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        nav {
+            background: white;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .nav-buttons::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-btn {
+            background: #edf2f7;
+            color: #4a5568;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: #1a202c;
+            color: white;
+        }
+
+        .content-section {
+            display: none;
+            padding: 1.5rem 0;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .meal-card {
+            background: white;
+            margin: 1rem 0;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .meal-header {
+            background: #f7fafc;
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .meal-title {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .meal-content {
+            padding: 1.5rem;
+            display: none;
+        }
+
+        .meal-content.active {
+            display: block;
+        }
+
+        .meal {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 3px solid #1a202c;
+        }
+
+        .meal-time {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 0.25rem;
+        }
+
+        .meal-name {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .meal-ingredients {
+            color: #718096;
+            margin: 0.5rem 0;
+            font-size: 0.875rem;
+        }
+
+        .meal-macros {
+            background: #1a202c;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            display: inline-block;
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .expand-icon {
+            transition: transform 0.2s ease;
+            font-size: 0.875rem;
+        }
+
+        .expand-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            background: white;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: #1a202c;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .info-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .info-title {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: #1a202c;
+        }
+
+        .info-item {
+            margin: 0.5rem 0;
+            font-size: 0.875rem;
+            color: #4a5568;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #f7fafc;
+        }
+
+        .recipe-steps {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .step {
+            margin: 0.5rem 0;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        .step-number {
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+        .progress-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .progress-day {
+            aspect-ratio: 1;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.75rem;
+            background: white;
+        }
+
+        .progress-day.completed {
+            background: #1a202c;
+            color: white;
+            border-color: #1a202c;
+        }
+
+        .cycle-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .cycle-btn {
+            background: #1a202c;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .cycle-btn:hover {
+            background: #2d3748;
+        }
+
+        .current-day {
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 12px;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .timer-display {
+                font-size: 0.75rem;
+                padding: 0.375rem 0.75rem;
+            }
+            
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .highlight {
+            background-color: #fed7d7;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        .timing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .timing-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .timing-time {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+        .timing-meal {
+            font-size: 0.875rem;
+            color: #718096;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">🍽️ IF Meal Plan</div>
+                <div class="timer-display">
+                    <span id="currentTime">--:--</span> | Next: <span id="nextMeal">--</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <div class="nav-buttons">
+                <button class="nav-btn active" onclick="showSection('today')">Today</button>
+                <button class="nav-btn" onclick="showSection('meals')">All Days</button>
+                <button class="nav-btn" onclick="showSection('recipes')">Recipes</button>
+                <button class="nav-btn" onclick="showSection('substitutes')">Substitutes</button>
+                <button class="nav-btn" onclick="showSection('grocery')">Grocery</button>
+                <button class="nav-btn" onclick="showSection('prep')">Meal Prep</button>
+                <button class="nav-btn" onclick="showSection('progress')">Progress</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Today Section -->
+        <section id="today" class="content-section active">
+            <div class="timing-grid">
+                <div class="timing-card">
+                    <div class="timing-time">12:00 PM</div>
+                    <div class="timing-meal">Protein Shake</div>
+                </div>
+                <div class="timing-card">
+                    <div class="timing-time">3:00 PM</div>
+                    <div class="timing-meal">Lunch</div>
+                </div>
+                <div class="timing-card">
+                    <div class="timing-time">7:00 PM</div>
+                    <div class="timing-meal">Dinner</div>
+                </div>
+            </div>
+            
+            <div class="cycle-controls">
+                <button class="cycle-btn" onclick="changeDay(-1)">← Previous</button>
+                <span class="current-day">Day <span id="currentDayNum">1</span></span>
+                <button class="cycle-btn" onclick="changeDay(1)">Next →</button>
+            </div>
+            
+            <div id="todayMeals"></div>
+        </section>
+
+        <!-- All Meals Section -->
+        <section id="meals" class="content-section">
+            <input type="text" class="search-bar" placeholder="Search meals..." onkeyup="searchMeals(this.value)">
+            <div id="allMeals"></div>
+        </section>
+
+        <!-- Recipes Section -->
+        <section id="recipes" class="content-section">
+            <input type="text" class="search-bar" placeholder="Search recipes..." onkeyup="searchRecipes(this.value)">
+            <div id="recipeContent"></div>
+        </section>
+
+        <!-- Substitutes Section -->
+        <section id="substitutes" class="content-section">
+            <input type="text" class="search-bar" placeholder="Search substitutes..." onkeyup="searchSubstitutes(this.value)">
+            <div class="grid-2" id="substituteContent"></div>
+        </section>
+
+        <!-- Grocery Section -->
+        <section id="grocery" class="content-section">
+            <div class="grid-3" id="groceryContent"></div>
+        </section>
+
+        <!-- Meal Prep Section -->
+        <section id="prep" class="content-section">
+            <div id="prepContent"></div>
+        </section>
+
+        <!-- Progress Section -->
+        <section id="progress" class="content-section">
+            <div id="progressContent"></div>
+        </section>
+    </div>
+
+    <script>
+        // 20 Different Meal Plans
+        const mealPlans = [
+            {
+                shake: { name: "Chocolate Peanut Butter Power", ingredients: "1.5 scoops chocolate whey + 1 tbsp peanut butter + 1 cup almond milk + 1/2 banana + cocoa powder", protein: 49, calories: 380 },
+                lunch: { name: "Umami Turkey & Mushroom Bowl", ingredients: "8 oz ground turkey + 2 cups mixed mushrooms + 1/2 cup brown rice + soy sauce + sesame oil + garlic + steamed broccoli", protein: 90, calories: 745 },
+                dinner: { name: "Miso-Glazed Salmon", ingredients: "10 oz salmon + miso glaze + roasted Brussels sprouts + sweet potato + mixed greens + edamame", protein: 132, calories: 1055 }
+            },
+            {
+                shake: { name: "Vanilla Berry Antioxidant", ingredients: "1.5 scoops vanilla whey + 1 cup mixed berries + almond milk + spinach + almond butter", protein: 44, calories: 385 },
+                lunch: { name: "Asian Beef & Cabbage Stir-Fry", ingredients: "8 oz ground beef + napa cabbage + red bell pepper + soy sauce + fish sauce + ginger + quinoa + peanuts", protein: 88, calories: 750 },
+                dinner: { name: "Herb-Crusted Chicken Thighs", ingredients: "12 oz chicken thighs + herb crust + roasted cauliflower + zucchini + mixed greens + pine nuts", protein: 134, calories: 1065 }
+            },
+            {
+                shake: { name: "Green Machine Protein", ingredients: "1.5 scoops vanilla whey + coconut milk + spinach + avocado + chia seeds + matcha powder", protein: 44, calories: 395 },
+                lunch: { name: "Mediterranean Chicken Skillet", ingredients: "8 oz chicken breast + cherry tomatoes + zucchini + red onion + olives + feta + brown rice", protein: 88, calories: 755 },
+                dinner: { name: "Teriyaki Turkey Meatballs", ingredients: "12 oz turkey meatballs + teriyaki sauce + stir-fried bok choy + roasted eggplant + edamame + cucumber salad", protein: 131, calories: 1050 }
+            },
+            {
+                shake: { name: "Mocha Protein Boost", ingredients: "1.5 scoops chocolate whey + cold brew coffee + almond milk + almond butter + cocoa powder", protein: 42, calories: 375 },
+                lunch: { name: "Korean-Style Beef Bowl", ingredients: "8 oz ground beef + Korean marinade + steamed broccoli + kimchi + brown rice + fried egg + green onion", protein: 92, calories: 765 },
+                dinner: { name: "Lemon Herb Cod", ingredients: "12 oz cod fillet + lemon herbs + roasted carrots + parsnips + Brussels sprouts + arugula + pumpkin seeds", protein: 133, calories: 1060 }
+            },
+            {
+                shake: { name: "Tropical Coconut Smoothie", ingredients: "1.5 scoops vanilla whey + pineapple + mango + light coconut milk + coconut flakes", protein: 41, calories: 385 },
+                lunch: { name: "Thai Basil Chicken Wraps", ingredients: "8 oz ground chicken + Thai basil + fish sauce + bell pepper + lettuce wraps + jasmine rice + peanuts", protein: 90, calories: 750 },
+                dinner: { name: "Balsamic Pork Tenderloin", ingredients: "10 oz pork tenderloin + balsamic glaze + roasted asparagus + bell peppers + sweet potato + walnuts", protein: 132, calories: 1065 }
+            },
+            {
+                shake: { name: "Cookies & Cream Protein", ingredients: "1.5 scoops vanilla whey + almond milk + almond butter + vanilla extract + cocoa powder", protein: 42, calories: 380 },
+                lunch: { name: "Mexican Chicken Fajita Bowl", ingredients: "8 oz chicken breast + fajita seasoning + bell peppers + onion + black beans + cheese + lettuce + avocado", protein: 90, calories: 755 },
+                dinner: { name: "Garlic Butter Shrimp", ingredients: "12 oz shrimp + garlic butter + zucchini noodles + cherry tomatoes + parmesan + spinach salad + pine nuts", protein: 134, calories: 1065 }
+            },
+            {
+                shake: { name: "Cinnamon Roll Protein", ingredients: "1.5 scoops vanilla whey + almond milk + cashew butter + cinnamon + vanilla extract", protein: 41, calories: 375 },
+                lunch: { name: "Greek Chicken & Vegetable Bake", ingredients: "8 oz chicken thigh + Greek seasoning + roasted eggplant + tomatoes + red onion + feta + olives + quinoa", protein: 88, calories: 760 },
+                dinner: { name: "Cajun Salmon", ingredients: "10 oz salmon + Cajun seasoning + roasted sweet potato + green beans + okra + mixed greens + pecans", protein: 131, calories: 1065 }
+            },
+            {
+                shake: { name: "Chocolate Cherry Boost", ingredients: "1.5 scoops chocolate whey + almond butter + almond milk + frozen cherries + vanilla", protein: 47, calories: 390 },
+                lunch: { name: "Italian Turkey Skillet", ingredients: "8 oz ground turkey + cherry tomatoes + zucchini + parmesan + Italian herbs + quinoa + basil", protein: 89, calories: 740 },
+                dinner: { name: "Herb-Crusted Cod", ingredients: "12 oz cod + herb crust + roasted mushrooms + cauliflower + spinach salad + sunflower seeds", protein: 135, calories: 1070 }
+            },
+            {
+                shake: { name: "Vanilla Coconut Dream", ingredients: "1.5 scoops vanilla whey + coconut milk + coconut flakes + banana + spinach", protein: 43, calories: 385 },
+                lunch: { name: "Moroccan Chicken Bowl", ingredients: "8 oz chicken breast + Moroccan spices + roasted carrots + chickpeas + brown rice + almonds", protein: 91, calories: 760 },
+                dinner: { name: "Sesame Ginger Salmon", ingredients: "10 oz salmon + sesame ginger glaze + stir-fried bok choy + shiitake mushrooms + brown rice", protein: 130, calories: 1045 }
+            },
+            {
+                shake: { name: "Peanut Butter Cup", ingredients: "1.5 scoops chocolate whey + peanut butter + almond milk + banana + dark cocoa", protein: 48, calories: 395 },
+                lunch: { name: "Buffalo Chicken & Cauliflower", ingredients: "8 oz chicken breast + buffalo sauce + roasted cauliflower + celery + blue cheese + brown rice", protein: 87, calories: 735 },
+                dinner: { name: "Lemon Garlic Shrimp", ingredients: "12 oz shrimp + lemon garlic sauce + roasted asparagus + cherry tomatoes + quinoa + arugula", protein: 133, calories: 1060 }
+            },
+            {
+                shake: { name: "Mint Chocolate Chip", ingredients: "1.5 scoops chocolate whey + almond milk + spinach + mint extract + chia seeds", protein: 45, calories: 380 },
+                lunch: { name: "Indian Curry Chicken", ingredients: "8 oz chicken breast + curry spices + cauliflower + bell peppers + coconut milk + brown rice", protein: 89, calories: 745 },
+                dinner: { name: "Blackened Mahi Mahi", ingredients: "12 oz mahi mahi + blackening spices + roasted sweet potato + green beans + mixed greens", protein: 128, calories: 1040 }
+            },
+            {
+                shake: { name: "Strawberry Cheesecake", ingredients: "1.5 scoops vanilla whey + strawberries + Greek yogurt + almond milk + vanilla", protein: 46, calories: 385 },
+                lunch: { name: "Chinese Five-Spice Pork", ingredients: "8 oz ground pork + five-spice + stir-fried vegetables + brown rice + sesame seeds", protein: 88, calories: 750 },
+                dinner: { name: "Rosemary Lamb Chops", ingredients: "10 oz lamb chops + rosemary + roasted root vegetables + arugula salad + goat cheese", protein: 132, calories: 1065 }
+            },
+            {
+                shake: { name: "Coffee Caramel Protein", ingredients: "1.5 scoops vanilla whey + cold brew + cashew butter + cinnamon + ice", protein: 44, calories: 390 },
+                lunch: { name: "Jamaican Jerk Chicken", ingredients: "8 oz chicken breast + jerk seasoning + roasted plantains + bell peppers + black beans", protein: 90, calories: 755 },
+                dinner: { name: "Pistachio Crusted Salmon", ingredients: "10 oz salmon + pistachio crust + roasted broccoli + sweet potato + spinach salad", protein: 131, calories: 1050 }
+            },
+            {
+                shake: { name: "Blueberry Muffin Protein", ingredients: "1.5 scoops vanilla whey + blueberries + almond butter + oats + almond milk", protein: 45, calories: 395 },
+                lunch: { name: "Spanish Chorizo & Chicken", ingredients: "6 oz chicken + 2 oz chorizo + bell peppers + onions + tomatoes + brown rice", protein: 89, calories: 745 },
+                dinner: { name: "Herb-Crusted Halibut", ingredients: "12 oz halibut + herb crust + roasted zucchini + mushrooms + mixed greens + walnuts", protein: 134, calories: 1070 }
+            },
+            {
+                shake: { name: "Orange Creamsicle", ingredients: "1.5 scoops vanilla whey + orange zest + coconut milk + vanilla + ice", protein: 42, calories: 380 },
+                lunch: { name: "Vietnamese Lemongrass Beef", ingredients: "8 oz ground beef + lemongrass + lime + bean sprouts + lettuce wraps + jasmine rice", protein: 88, calories: 740 },
+                dinner: { name: "Mustard Glazed Pork", ingredients: "10 oz pork tenderloin + Dijon glaze + roasted Brussels sprouts + carrots + quinoa", protein: 130, calories: 1055 }
+            },
+            {
+                shake: { name: "Chocolate Hazelnut", ingredients: "1.5 scoops chocolate whey + hazelnut butter + almond milk + banana + cocoa", protein: 47, calories: 395 },
+                lunch: { name: "Persian Chicken Kabobs", ingredients: "8 oz chicken breast + Persian spices + grilled vegetables + saffron rice + yogurt sauce", protein: 91, calories: 760 },
+                dinner: { name: "Soy Ginger Cod", ingredients: "12 oz cod + soy ginger marinade + stir-fried snap peas + shiitake + brown rice", protein: 129, calories: 1045 }
+            },
+            {
+                shake: { name: "Key Lime Pie Protein", ingredients: "1.5 scoops vanilla whey + lime juice + coconut milk + avocado + lime zest", protein: 43, calories: 385 },
+                lunch: { name: "Turkish Chicken & Vegetables", ingredients: "8 oz chicken thigh + Turkish spices + roasted eggplant + tomatoes + bulgur wheat", protein: 87, calories: 735 },
+                dinner: { name: "Coconut Curry Shrimp", ingredients: "12 oz shrimp + coconut curry sauce + bell peppers + snap peas + jasmine rice + cilantro", protein: 135, calories: 1075 }
+            },
+            {
+                shake: { name: "Birthday Cake Protein", ingredients: "1.5 scoops vanilla whey + cake extract + almond milk + sprinkles + vanilla", protein: 44, calories: 380 },
+                lunch: { name: "Brazilian Chicken & Rice", ingredients: "8 oz chicken breast + Brazilian spices + black beans + bell peppers + cilantro rice", protein: 89, calories: 750 },
+                dinner: { name: "Chimichurri Steak", ingredients: "10 oz sirloin steak + chimichurri sauce + roasted sweet potato + asparagus + mixed greens", protein: 133, calories: 1065 }
+            },
+            {
+                shake: { name: "Banana Bread Protein", ingredients: "1.5 scoops vanilla whey + banana + walnut butter + cinnamon + nutmeg + almond milk", protein: 45, calories: 390 },
+                lunch: { name: "Ethiopian Chicken Stew", ingredients: "8 oz chicken thigh + berbere spice + lentils + vegetables + injera bread substitute", protein: 90, calories: 745 },
+                dinner: { name: "Miso Black Cod", ingredients: "12 oz black cod + miso marinade + roasted baby bok choy + shiitake + forbidden rice", protein: 132, calories: 1060 }
+            }
+        ];
+
+        // Recipe instructions for different cooking methods
+        const recipeInstructions = {
+            shakes: [
+                "Add liquid ingredients to blender first",
+                "Add protein powder to prevent clumping",
+                "Add nut butters and thick ingredients",
+                "Add frozen fruits or ice last",
+                "Blend on high for 60 seconds",
+                "Check consistency, add ice if needed",
+                "Blend additional 30 seconds and serve"
+            ],
+            groundMeat: [
+                "Heat large skillet over medium-high heat",
+                "Add 1 tsp oil to hot skillet",
+                "Add ground protein, break up with spatula",
+                "Cook 5-6 minutes until no pink remains",
+                "Add aromatics (garlic, ginger, onions)",
+                "Cook 1-2 minutes until fragrant",
+                "Add vegetables in order of cooking time",
+                "Add sauces and seasonings",
+                "Toss to combine and serve over grains"
+            ],
+            chicken: [
+                "Pat chicken dry and season with salt and pepper",
+                "Heat oven-safe skillet over medium-high heat",
+                "Add oil and sear chicken 3-4 minutes per side",
+                "Transfer to preheated 425°F oven",
+                "Bake 15-20 minutes until internal temp reaches 165°F",
+                "Let rest 5 minutes before serving",
+                "Serve with roasted vegetables and grains"
+            ],
+            fish: [
+                "Preheat oven to 400°F",
+                "Pat fish dry and season both sides",
+                "Place on foil-lined baking sheet",
+                "Brush with marinade or oil",
+                "Bake 12-15 minutes until fish flakes easily",
+                "Optional: broil last 2 minutes for color",
+                "Serve immediately with vegetables"
+            ],
+            seafood: [
+                "Pat seafood dry and season",
+                "Heat large skillet over medium-high heat",
+                "Add oil or butter",
+                "Cook seafood 2-3 minutes per side",
+                "Remove seafood, keep warm",
+                "Sauté vegetables in same pan",
+                "Return seafood to pan to warm through",
+                "Serve immediately"
+            ]
+        };
+
+        // Substitute options
+        const substitutes = {
+            "Protein Shakes": [
+                "Chocolate Cherry: chocolate whey + cherries + almond butter",
+                "Mocha Mint: chocolate whey + coffee + mint extract",
+                "Vanilla Coconut: vanilla whey + coconut milk + coconut flakes",
+                "Strawberry Cream: vanilla whey + strawberries + Greek yogurt"
+            ],
+            "Ground Proteins": [
+                "Italian Style: ground turkey + tomatoes + Italian herbs",
+                "Mexican Bowl: ground beef + peppers + cumin + chili",
+                "Asian Lettuce Wraps: ground chicken + Asian sauce + lettuce",
+                "Greek Meatballs: ground lamb + herbs + tzatziki"
+            ],
+            "Chicken Dishes": [
+                "Buffalo Style: chicken + buffalo sauce + celery",
+                "Lemon Pepper: chicken + lemon + black pepper + herbs",
+                "Teriyaki: chicken + teriyaki sauce + Asian vegetables",
+                "Mediterranean: chicken + olives + tomatoes + feta"
+            ],
+            "Fish & Seafood": [
+                "Cajun Style: any fish + Cajun spices + sweet potato",
+                "Lemon Garlic: seafood + lemon + garlic + herbs",
+                "Asian Glazed: fish + soy ginger glaze + vegetables",
+                "Mediterranean: fish + olives + tomatoes + herbs"
+            ],
+            "Quick Emergencies": [
+                "Canned Salmon Bowl: 2 cans salmon + quinoa + vegetables",
+                "Rotisserie Chicken: store-bought chicken + microwaved vegetables",
+                "Protein Coffee: 2 scoops whey + cold brew + nut butter",
+                "Egg Scramble: 6 eggs + deli turkey + cheese + vegetables"
+            ]
+        };
+
+        // Grocery list by category
+        const groceryList = {
+            "Proteins": [
+                "Whey protein powder (chocolate & vanilla) - 2 containers",
+                "Ground turkey 93/7 - 3 lbs",
+                "Ground beef 90/10 - 3 lbs",
+                "Ground chicken 93/7 - 2 lbs",
+                "Chicken breast - 4 lbs",
+                "Chicken thighs, boneless - 4 lbs",
+                "Salmon fillets - 3 lbs",
+                "Cod fillets - 2 lbs",
+                "Mahi mahi fillets - 1.5 lbs",
+                "Halibut fillets - 1.5 lbs",
+                "Pork tenderloin - 2 lbs",
+                "Large shrimp - 2 lbs",
+                "Eggs - 2 dozen"
+            ],
+            "Vegetables": [
+                "Mixed mushrooms (shiitake, cremini) - 3 lbs",
+                "Brussels sprouts - 3 lbs",
+                "Broccoli - 3 heads",
+                "Cauliflower - 2 heads",
+                "Napa cabbage - 2 heads",
+                "Bok choy - 3 bunches",
+                "Asparagus - 3 bunches",
+                "Green beans - 2 lbs",
+                "Bell peppers (various colors) - 12 peppers",
+                "Zucchini - 6 medium",
+                "Eggplant - 3 medium",
+                "Sweet potatoes - 6 large",
+                "Carrots - 2 lbs",
+                "Mixed greens - 3 large containers",
+                "Spinach - 3 large containers",
+                "Arugula - 2 containers"
+            ],
+            "Fruits": [
+                "Avocados - 6 medium",
+                "Mixed berries - 3 cups",
+                "Bananas - 6 medium",
+                "Pineapple chunks - 2 cups",
+                "Mango chunks - 2 cups",
+                "Frozen cherries - 1 bag",
+                "Strawberries - 2 cups"
+            ],
+            "Pantry": [
+                "Brown rice - 2 bags",
+                "Quinoa - 2 bags",
+                "Jasmine rice - 1 bag",
+                "Soy sauce - 1 bottle",
+                "Fish sauce - 1 bottle",
+                "Miso paste - 1 container",
+                "Olive oil - 1 bottle",
+                "Sesame oil - 1 bottle",
+                "Coconut oil - 1 jar",
+                "Various spices and seasonings",
+                "Mixed nuts and seeds"
+            ],
+            "Dairy & Alternatives": [
+                "Unsweetened almond milk - 1 gallon",
+                "Light coconut milk - 4 cans",
+                "Greek yogurt - 2 large containers",
+                "Feta cheese - 2 containers",
+                "Parmesan cheese - 1 block",
+                "Goat cheese - 1 container",
+                "Natural nut butters - 4 jars (variety)"
+            ]
+        };
+
+        // Current day tracking
+        let currentDay = 0;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize currentDay safely
+            currentDay = Math.abs(Math.floor(Date.now() / (1000 * 60 * 60 * 24))) % 20;
+            updateTime();
+            setInterval(updateTime, 60000);
+            loadContent();
+            updateTodayMeals();
+        });
+
+        // Navigation
+        function showSection(sectionId) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-btn').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (sectionId === 'today') updateTodayMeals();
+        }
+
+        // Day cycling
+        function changeDay(direction) {
+            currentDay = (currentDay + direction + 20) % 20;
+            // Ensure currentDay is within bounds
+            if (currentDay < 0) currentDay = 19;
+            if (currentDay >= 20) currentDay = 0;
+            
+            document.getElementById('currentDayNum').textContent = currentDay + 1;
+            updateTodayMeals();
+        }
+
+        // Update today's meals
+        function updateTodayMeals() {
+            // Safety check to ensure currentDay is valid
+            if (currentDay < 0 || currentDay >= mealPlans.length) {
+                currentDay = 0;
+            }
+            
+            const plan = mealPlans[currentDay];
+            
+            // Double check that plan exists
+            if (!plan) {
+                console.error('Plan not found for day:', currentDay);
+                currentDay = 0;
+                const fallbackPlan = mealPlans[0];
+                if (!fallbackPlan) {
+                    document.getElementById('todayMeals').innerHTML = '<div class="meal-card"><div class="meal-content active"><p>Loading meals...</p></div></div>';
+                    return;
+                }
+                document.getElementById('currentDayNum').textContent = '1';
+                updateTodayMealsWithPlan(fallbackPlan);
+                return;
+            }
+            
+            document.getElementById('currentDayNum').textContent = currentDay + 1;
+            updateTodayMealsWithPlan(plan);
+        }
+
+        // Helper function to update meals with a valid plan
+        function updateTodayMealsWithPlan(plan) {
+            document.getElementById('todayMeals').innerHTML = `
+                <div class="meal-card">
+                    <div class="meal-content active">
+                        <div class="meal">
+                            <div class="meal-time">12:00 PM - Protein Shake</div>
+                            <div class="meal-name">${plan.shake.name}</div>
+                            <div class="meal-ingredients">${plan.shake.ingredients}</div>
+                            <div class="meal-macros">${plan.shake.protein}g protein, ${plan.shake.calories} cal</div>
+                        </div>
+                        <div class="meal">
+                            <div class="meal-time">3:00 PM - Lunch</div>
+                            <div class="meal-name">${plan.lunch.name}</div>
+                            <div class="meal-ingredients">${plan.lunch.ingredients}</div>
+                            <div class="meal-macros">${plan.lunch.protein}g protein, ${plan.lunch.calories} cal</div>
+                        </div>
+                        <div class="meal">
+                            <div class="meal-time">7:00 PM - Dinner</div>
+                            <div class="meal-name">${plan.dinner.name}</div>
+                            <div class="meal-ingredients">${plan.dinner.ingredients}</div>
+                            <div class="meal-macros">${plan.dinner.protein}g protein, ${plan.dinner.calories} cal</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Load all content
+        function loadContent() {
+            loadAllMeals();
+            loadRecipes();
+            loadSubstitutes();
+            loadGrocery();
+            loadMealPrep();
+            loadProgress();
+        }
+
+        function loadAllMeals() {
+            let html = '';
+            mealPlans.forEach((plan, index) => {
+                html += `
+                    <div class="meal-card">
+                        <div class="meal-header" onclick="toggleCard(this)">
+                            <div class="meal-title">Day ${index + 1}</div>
+                            <span class="expand-icon">▼</span>
+                        </div>
+                        <div class="meal-content">
+                            <div class="meal">
+                                <div class="meal-time">12:00 PM - Protein Shake</div>
+                                <div class="meal-name">${plan.shake.name}</div>
+                                <div class="meal-ingredients">${plan.shake.ingredients}</div>
+                                <div class="meal-macros">${plan.shake.protein}g protein, ${plan.shake.calories} cal</div>
+                            </div>
+                            <div class="meal">
+                                <div class="meal-time">3:00 PM - Lunch</div>
+                                <div class="meal-name">${plan.lunch.name}</div>
+                                <div class="meal-ingredients">${plan.lunch.ingredients}</div>
+                                <div class="meal-macros">${plan.lunch.protein}g protein, ${plan.lunch.calories} cal</div>
+                            </div>
+                            <div class="meal">
+                                <div class="meal-time">7:00 PM - Dinner</div>
+                                <div class="meal-name">${plan.dinner.name}</div>
+                                <div class="meal-ingredients">${plan.dinner.ingredients}</div>
+                                <div class="meal-macros">${plan.dinner.protein}g protein, ${plan.dinner.calories} cal</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('allMeals').innerHTML = html;
+        }
+
+        function loadRecipes() {
+            let html = '';
+            Object.keys(recipeInstructions).forEach(category => {
+                html += `
+                    <div class="meal-card">
+                        <div class="meal-header" onclick="toggleCard(this)">
+                            <div class="meal-title">${category.charAt(0).toUpperCase() + category.slice(1)} Recipes</div>
+                            <span class="expand-icon">▼</span>
+                        </div>
+                        <div class="meal-content">
+                            <div class="recipe-steps">
+                                ${recipeInstructions[category].map((step, index) => 
+                                    `<div class="step"><span class="step-number">Step ${index + 1}:</span> ${step}</div>`
+                                ).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('recipeContent').innerHTML = html;
+        }
+
+        function loadSubstitutes() {
+            let html = '';
+            Object.keys(substitutes).forEach(category => {
+                html += `
+                    <div class="info-card">
+                        <div class="info-title">${category}</div>
+                        ${substitutes[category].map(item => `<div class="info-item">${item}</div>`).join('')}
+                    </div>
+                `;
+            });
+            document.getElementById('substituteContent').innerHTML = html;
+        }
+
+        function loadGrocery() {
+            let html = '';
+            Object.keys(groceryList).forEach(category => {
+                html += `
+                    <div class="info-card">
+                        <div class="info-title">${category}</div>
+                        ${groceryList[category].map(item => `<div class="info-item">${item}</div>`).join('')}
+                    </div>
+                `;
+            });
+            document.getElementById('groceryContent').innerHTML = html;
+        }
+
+        function loadMealPrep() {
+            document.getElementById('prepContent').innerHTML = `
+                <div class="meal-card">
+                    <div class="meal-header" onclick="toggleCard(this)">
+                        <div class="meal-title">Sunday Prep Session (3-4 hours)</div>
+                        <span class="expand-icon">▼</span>
+                    </div>
+                    <div class="meal-content">
+                        <div class="recipe-steps">
+                            <div class="step"><span class="step-number">1:</span> Cook grains in bulk (rice, quinoa) - 30 minutes</div>
+                            <div class="step"><span class="step-number">2:</span> Prep and cook ground proteins with basic seasonings - 60 minutes</div>
+                            <div class="step"><span class="step-number">3:</span> Wash, chop, and prep all vegetables for the week - 45 minutes</div>
+                            <div class="step"><span class="step-number">4:</span> Make marinades and sauce bases - 30 minutes</div>
+                            <div class="step"><span class="step-number">5:</span> Pre-roast hardy vegetables (sweet potatoes, Brussels sprouts) - 30 minutes</div>
+                            <div class="step"><span class="step-number">6:</span> Portion everything into labeled containers</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="meal-card">
+                    <div class="meal-header" onclick="toggleCard(this)">
+                        <div class="meal-title">Daily Assembly (15-20 minutes)</div>
+                        <span class="expand-icon">▼</span>
+                    </div>
+                    <div class="meal-content">
+                        <div class="recipe-steps">
+                            <div class="step">Heat pre-cooked proteins with fresh vegetables in skillet</div>
+                            <div class="step">Steam or microwave fresh vegetables (2-3 minutes)</div>
+                            <div class="step">Warm pre-cooked grains in microwave</div>
+                            <div class="step">Assemble bowls with pre-made sauces and seasonings</div>
+                            <div class="step">Add fresh toppings (herbs, nuts, seeds)</div>
+                            <div class="step">Blend protein shakes fresh each time</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadProgress() {
+            let html = '<div class="info-card"><div class="info-title">Weekly Progress Tracker</div>';
+            for (let week = 1; week <= 4; week++) {
+                html += `<h4>Week ${week}</h4><div class="progress-grid">`;
+                ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].forEach(day => {
+                    html += `<div class="progress-day" onclick="toggleProgress(this)">${day}</div>`;
+                });
+                html += '</div>';
+            }
+            html += '</div>';
+            document.getElementById('progressContent').innerHTML = html;
+        }
+
+        // Toggle functionality
+        function toggleCard(element) {
+            const content = element.nextElementSibling;
+            const icon = element.querySelector('.expand-icon');
+            content.classList.toggle('active');
+            icon.classList.toggle('rotated');
+        }
+
+        function toggleProgress(element) {
+            element.classList.toggle('completed');
+        }
+
+        // Timer functionality
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            document.getElementById('currentTime').textContent = timeString;
+            
+            const hour = now.getHours();
+            const minute = now.getMinutes();
+            const currentTime = hour * 60 + minute;
+            
+            const mealTimes = [
+                { time: 12 * 60, name: 'Shake' },
+                { time: 15 * 60, name: 'Lunch' },
+                { time: 19 * 60, name: 'Dinner' }
+            ];
+            
+            let nextMeal = 'Fasting';
+            
+            for (let meal of mealTimes) {
+                if (currentTime < meal.time) {
+                    const minutesToMeal = meal.time - currentTime;
+                    const hours = Math.floor(minutesToMeal / 60);
+                    const mins = minutesToMeal % 60;
+                    nextMeal = `${meal.name} in ${hours > 0 ? hours + 'h ' : ''}${mins}m`;
+                    break;
+                }
+            }
+            
+            document.getElementById('nextMeal').textContent = nextMeal;
+        }
+
+        // Search functionality
+        function searchMeals(query) {
+            searchContent(query, '#allMeals .meal-card');
+        }
+
+        function searchRecipes(query) {
+            searchContent(query, '#recipeContent .meal-card');
+        }
+
+        function searchSubstitutes(query) {
+            searchContent(query, '#substituteContent .info-card');
+        }
+
+        function searchContent(query, selector) {
+            document.querySelectorAll(selector).forEach(element => {
+                const text = element.textContent.toLowerCase();
+                if (text.includes(query.toLowerCase()) || query === '') {
+                    element.style.display = 'block';
+                } else {
+                    element.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
